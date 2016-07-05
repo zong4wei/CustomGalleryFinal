@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/titlebar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/gf_title_bar_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="@dimen/gf_title_bar_height"
+            android:layout_height="@dimen/gf_title_bar_height"
+            android:layout_gravity="center_vertical"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_gf_back" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/preview"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:padding="10dp"
+            android:text="1/8"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
+
+        <ImageButton
+            android:id="@+id/ib_delete_photo"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/tv_indicator"
+            android:background="@null"
+            android:padding="10dp"
+            android:visibility="gone"
+            android:src="@drawable/icon_delete" />
+
+        <ImageButton
+            android:id="@+id/ib_download_photo"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/ib_delete_photo"
+            android:background="@null"
+            android:padding="10dp"
+            android:visibility="gone"
+            android:src="@drawable/top_down_image" />
+    </RelativeLayout>+
+
+    <cn.finalteam.galleryfinal.widget.GFViewPager
+        android:id="@+id/vp_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/titlebar" />
+</RelativeLayout>
