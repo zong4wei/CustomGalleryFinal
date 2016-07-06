@@ -16,6 +16,7 @@
 
 package cn.finalteam.galleryfinal;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -66,6 +67,7 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
     static final String EDIT_PHOTO_ACTION = "edit_photo_action";
 
     static final String SELECT_MAP = "select_map";
+    private static final int PREVIEW_PHOTO = 1000;
     private final int CROP_SUC = 1;//裁剪成功
     private final int CROP_FAIL = 2;//裁剪失败
     private final int UPDATE_PATH = 3;//更新path
@@ -100,6 +102,7 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
     private boolean mCropPhotoAction;//裁剪图片动作
     private boolean mEditPhotoAction;//编辑图片动作
     private TextView mTvConfirm;
+    private ArrayList<PhotoInfo> deletePhotos;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -182,6 +185,7 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
                     mPhotoEditListAdapter.notifyDataSetChanged();
                 }
 
+                //强制裁剪且强制裁剪不编辑
                 if (GalleryFinal.getFunctionConfig().isForceCrop() && !GalleryFinal.getFunctionConfig().isForceCropEdit()) {
                     resultAction();
                 }
@@ -349,6 +353,7 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
         mPhotoList.add(0, info);
         mSelectPhotoList.add(info);
         mPhotoTempMap.put(info.getPhotoId(), new PhotoTempModel(info.getPhotoPath()));
+        //相机拍摄且不编辑
         if (!GalleryFinal.getFunctionConfig().isEditPhoto() && mTakePhotoAction) {
             resultAction();
         } else {
@@ -398,6 +403,7 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
                         break;
                     }
                 }
+
             } catch (Exception e) {
             }
         }
@@ -467,7 +473,7 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
                 } catch (Exception e) {
                     ILogger.e(e);
                 }
-            } else { //完成选择
+            } else { //点击编辑页保存
                 resultAction();
             }
         } else if (id == R.id.iv_crop) {
@@ -510,9 +516,10 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
             }
             finish();
         } else if (id == R.id.iv_preview) {
+            GalleryFinal.getFunctionConfig().preview_delete = false;
             Intent intent = new Intent(this, PhotoPreviewActivity.class);
             intent.putExtra(PhotoPreviewActivity.PHOTO_LIST, mSelectPhotoList);
-            startActivity(intent);
+            startActivityForResult(intent, PREVIEW_PHOTO);
         }
     }
 
@@ -669,5 +676,66 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
             }
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK)
+            return;
+        switch (requestCode) {
+            case PREVIEW_PHOTO:
+                deletePhotos = (ArrayList<PhotoInfo>) data.getExtras().getSerializable("deletemPhotoList");
+
+                deletePhotoFromPreview(deletePhotos);
+                break;
+        }
+    }
+
+
+    public void deletePhotoFromPreview(ArrayList<PhotoInfo> photoInfos) {
+        for (PhotoInfo dPhoto : photoInfos) {
+            if (dPhoto != null) {
+                PhotoSelectActivity activity = (PhotoSelectActivity) ActivityManager.getActivityManager().getActivity(PhotoSelectActivity.class.getName());
+                if (activity != null) {
+                    activity.deleteSelect(dPhoto.getPhotoId());
+                }
+
+                try {
+                    for (Iterator<PhotoInfo> iterator = mSelectPhotoList.iterator(); iterator.hasNext(); ) {
+                        PhotoInfo info = iterator.next();
+                        if (info != null && info.getPhotoId() == dPhoto.getPhotoId()) {
+                            iterator.remove();
+                            break;
+                        }
+                    }
+
+                    for (Iterator<PhotoInfo> iterator1 = mPhotoEditListAdapter.getDatas().iterator(); iterator1.hasNext(); ) {
+                        PhotoInfo info1 = iterator1.next();
+                        if (info1 != null && info1.getPhotoId() == dPhoto.getPhotoId()) {
+                            iterator1.remove();
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }
+
+        mPhotoEditListAdapter.notifyDataSetChanged();
+
+        if (mPhotoList.size() == 0) {
+            mSelectIndex = 0;
+            mTvEmptyView.setText(R.string.no_photo);
+            mTvEmptyView.setVisibility(View.VISIBLE);
+            mIvSourcePhoto.setVisibility(View.GONE);
+            mIvCropPhoto.setVisibility(View.GONE);
+            mIvPreView.setVisibility(View.GONE);
+        } else {
+
+            mSelectIndex = 0;
+            PhotoInfo photoInfo = mPhotoList.get(mSelectIndex);
+            loadImage(photoInfo);
+        }
     }
 }

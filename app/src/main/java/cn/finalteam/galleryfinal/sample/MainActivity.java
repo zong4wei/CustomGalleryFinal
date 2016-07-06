@@ -1,6 +1,7 @@
 package cn.finalteam.galleryfinal.sample;
 
-import android.content.Context;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
@@ -9,15 +10,15 @@ import android.widget.GridView;
 import android.widget.Toast;
 
 import com.baoyz.actionsheet.ActionSheet;
-import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
-import java.util.LinkedList;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import cn.finalteam.galleryfinal.GalleryFinal;
+import cn.finalteam.galleryfinal.PhotoPreviewActivity;
 import cn.finalteam.galleryfinal.model.PhotoInfo;
 
 /**
@@ -29,11 +30,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private GridView selectPhotoGv;
     private EditAvaterAdapter gvAdapter;
-    List<PhotoInfo> avaterList = new LinkedList<PhotoInfo>();
+    ArrayList<PhotoInfo> avaterList = new ArrayList<PhotoInfo>();
     private final int REQUEST_CODE_CAMERA = 1000;
     private final int REQUEST_CODE_GALLERY = 1001;
     private final int REQUEST_CODE_CROP = 1002;
     private final int REQUEST_CODE_EDIT = 1003;
+    private static final int PREVIEW_PHOTO = 1004;
+    private ArrayList<PhotoInfo> deletePhotos;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,7 +80,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         if (position != avaterList.size()) {
 
+            GalleryFinal.getFunctionConfig().preview_delete = true;
+            Intent intent = new Intent(this, PhotoPreviewActivity.class);
+            intent.putExtra(PhotoPreviewActivity.PHOTO_LIST, avaterList);
+            intent.putExtra(PhotoPreviewActivity.SELECE_PHOTO_INDEX, position);
+            startActivityForResult(intent, PREVIEW_PHOTO);
+
         } else {
+
             ActionSheet.createBuilder(MainActivity.this, getSupportFragmentManager())
                     .setCancelButtonTitle("取消")
                     .setOtherButtonTitles("拍照", "相册")
@@ -112,6 +122,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         public void onHanlderSuccess(int reqeustCode, List<PhotoInfo> resultList) {
             if (resultList != null) {
                 avaterList.addAll(resultList);
+                gvAdapter.addItemChangeMine(avaterList);
                 gvAdapter.notifyDataSetChanged();
             }
         }
@@ -122,4 +133,33 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     };
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK)
+            return;
+        switch (requestCode) {
+            case PREVIEW_PHOTO:
+                deletePhotos = (ArrayList<PhotoInfo>) data.getExtras().getSerializable("deletemPhotoList");
+
+                deleteAvater(deletePhotos);
+                break;
+        }
+    }
+
+
+    private void deleteAvater(ArrayList<PhotoInfo> deletePhotos) {
+
+        for (PhotoInfo s : deletePhotos) {
+            Iterator<PhotoInfo> iter = avaterList.iterator();
+            while (iter.hasNext()) {
+                PhotoInfo info = iter.next();
+                if (info.getPhotoPath().contains(s.getPhotoPath()))
+                    iter.remove();
+            }
+        }
+        gvAdapter.addItemChangeMine(avaterList);
+        gvAdapter.notifyDataSetChanged();
+    }
 }

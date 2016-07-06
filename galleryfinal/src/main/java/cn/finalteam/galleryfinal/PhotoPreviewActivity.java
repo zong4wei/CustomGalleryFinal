@@ -27,8 +27,8 @@ import cn.finalteam.galleryfinal.widget.GFViewPager;
  */
 public class PhotoPreviewActivity extends PhotoBaseActivity implements ViewPager.OnPageChangeListener, View.OnClickListener {
 
-    static final String PHOTO_LIST = "photo_list";
-    private static final String SELECE_PHOTO_INDEX = "select_photo_index";
+    public static final String PHOTO_LIST = "photo_list";
+    public static final String SELECE_PHOTO_INDEX = "select_photo_index";
 
     private RelativeLayout mTitleBar;
     private ImageView mIvBack;
@@ -63,9 +63,11 @@ public class PhotoPreviewActivity extends PhotoBaseActivity implements ViewPager
 
             mPhotoList = (List<PhotoInfo>) getIntent().getSerializableExtra(PHOTO_LIST);
             mSelectPhotoIndex = getIntent().getExtras().getInt(SELECE_PHOTO_INDEX, 0);
+
             mPhotoPreviewAdapter = new PhotoPreviewAdapter(this, mPhotoList);
             mVpPager.setAdapter(mPhotoPreviewAdapter);
 
+            current = mSelectPhotoIndex;
             updatePercent();
             mVpPager.setCurrentItem(current);
         }
@@ -159,12 +161,9 @@ public class PhotoPreviewActivity extends PhotoBaseActivity implements ViewPager
 
             if (mPhotoList.size() > 1) {
                 deletePhoto.add(selectPhoto);
-
                 mPhotoList.remove(selectPhoto);
-
                 mVpPager.setAdapter(mPhotoPreviewAdapter);
                 mVpPager.setCurrentItem(current);
-
                 if (mPhotoList.size() == 1) {
                     current = 0;
                 }
@@ -182,7 +181,6 @@ public class PhotoPreviewActivity extends PhotoBaseActivity implements ViewPager
                 bundle.putSerializable("deletemPhotoList", deletePhoto);
                 setResult(Activity.RESULT_OK, getIntent().putExtras(bundle));
                 finish();
-//                Toast.makeText(BasePhotoPreviewActivity.this, "最少保留一张照片", Toast.LENGTH_SHORT).show();
             }
 
         } else if (id == R.id.ib_download_photo) {

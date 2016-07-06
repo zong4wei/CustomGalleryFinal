@@ -21,5 +21,6 @@
     <string name="permissions_tips_gallery">This app requesting access to your Gallery</string>
     <string name="permissions_denied_tips">Unable to get pictures</string>
     <string name="maxsize_zero_tip">Maxsize should be greater than zero</string>
-    <string name="confirm">保存</string>
+    <string name="confirm">confirm</string>
+    <string name="dialog_compress_loading">please wait，Images are compressed to save</string>
 </resources>

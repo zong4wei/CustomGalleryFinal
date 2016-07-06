@@ -37,4 +37,6 @@
     <string name="permissions_tips_gallery">这个App请求访问你的相册</string>
     <string name="permissions_denied_tips">无法获取图片</string>
     <string name="maxsize_zero_tip">maxsize 应该大于0</string>
+    <string name="dialog_compress_loading">请稍后，图片正在压缩保存</string>
+    <string name="confirm">保存</string>
 </resources>

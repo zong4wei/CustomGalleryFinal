@@ -18,27 +18,26 @@ package cn.finalteam.galleryfinal;
 
 import android.support.annotation.IntRange;
 
-import cn.finalteam.galleryfinal.model.PhotoInfo;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import cn.finalteam.galleryfinal.model.PhotoInfo;
 
 /**
  * Desction:
  * Author:pengjianbo
  * Date:15/12/2 上午10:45
  */
-public class FunctionConfig implements Cloneable{
+public class FunctionConfig implements Cloneable {
 
-    protected boolean mutiSelect;
-    protected int maxSize;
+    public boolean mutiSelect;
+    public int maxSize;
     protected boolean editPhoto;//编辑
-    protected boolean crop;//裁剪
+    public boolean crop;//裁剪
     private boolean rotate;//旋转
     private boolean camera;
-    private int cropWidth;
-    private int cropHeight;
+    public int cropWidth;
+    public int cropHeight;
     private boolean cropSquare;
     private boolean rotateReplaceSource;//旋转是否覆盖源文件
     private boolean cropReplaceSource;//裁剪是否覆盖源文件
@@ -48,8 +47,10 @@ public class FunctionConfig implements Cloneable{
     private ArrayList<String> selectedList;
     private ArrayList<String> filterList;//过滤器
 
-    private boolean preview_delete;//预览删除
-
+    public boolean preview_delete;//预览删除
+    public boolean compress; //是否压缩图片
+    public int compressSize; //压缩图片后图片大小k为单位
+    private int maxSizeCompress = 300; //如果compress为true，compressSize没有设置，那么compressSize = maxSizeCompress   单位为k
 
 
     private FunctionConfig(final Builder builder) {
@@ -70,6 +71,8 @@ public class FunctionConfig implements Cloneable{
         this.forceCropEdit = builder.forceCropEdit;
         this.preview = builder.preview;
         this.preview_delete = builder.preview_delete;
+        this.compress = builder.compress;
+        this.compressSize = builder.compressSize;
     }
 
     public static class Builder {
@@ -90,6 +93,8 @@ public class FunctionConfig implements Cloneable{
         private boolean forceCropEdit;//强制裁剪后是否可对图片编辑，默认不可以
         private boolean preview;//预览
         private boolean preview_delete;//预览删除
+        private boolean compress;       //压缩
+        private int compressSize;       //压缩大小 k为单位
 
         public Builder setMutiSelect(boolean mutiSelect) {
             this.mutiSelect = mutiSelect;
@@ -121,12 +126,12 @@ public class FunctionConfig implements Cloneable{
             return this;
         }
 
-        public Builder setCropWidth(@IntRange(from = 1, to = Integer.MAX_VALUE)int width) {
+        public Builder setCropWidth(@IntRange(from = 1, to = Integer.MAX_VALUE) int width) {
             this.cropWidth = width;
             return this;
         }
 
-        public Builder setCropHeight(@IntRange(from = 1, to = Integer.MAX_VALUE)int height) {
+        public Builder setCropHeight(@IntRange(from = 1, to = Integer.MAX_VALUE) int height) {
             this.cropHeight = height;
             return this;
         }
@@ -144,9 +149,9 @@ public class FunctionConfig implements Cloneable{
         }
 
         public Builder setSelected(Collection<PhotoInfo> selectedList) {
-            if ( selectedList != null ) {
+            if (selectedList != null) {
                 ArrayList<String> list = new ArrayList<>();
-                for(PhotoInfo info:selectedList) {
+                for (PhotoInfo info : selectedList) {
                     if (info != null) {
                         list.add(info.getPhotoPath());
                     }
@@ -158,16 +163,16 @@ public class FunctionConfig implements Cloneable{
         }
 
         public Builder setFilter(ArrayList<String> filterList) {
-            if ( filterList != null ) {
+            if (filterList != null) {
                 this.filterList = (ArrayList<String>) filterList.clone();
             }
             return this;
         }
 
         public Builder setFilter(Collection<PhotoInfo> filterList) {
-            if ( filterList != null ) {
+            if (filterList != null) {
                 ArrayList<String> list = new ArrayList<>();
-                for(PhotoInfo info:filterList) {
+                for (PhotoInfo info : filterList) {
                     if (info != null) {
                         list.add(info.getPhotoPath());
                     }
@@ -180,6 +185,7 @@ public class FunctionConfig implements Cloneable{
 
         /**
          * 设置旋转后是否替换原图
+         *
          * @param rotateReplaceSource
          * @return
          */
@@ -190,6 +196,7 @@ public class FunctionConfig implements Cloneable{
 
         /**
          * 设置裁剪后是否替换原图
+         *
          * @param cropReplaceSource
          * @return
          */
@@ -200,6 +207,7 @@ public class FunctionConfig implements Cloneable{
 
         /**
          * 强制裁剪
+         *
          * @param forceCrop
          * @return
          */
@@ -210,6 +218,7 @@ public class FunctionConfig implements Cloneable{
 
         /**
          * 强制裁剪后是否可以对图片编辑，默认不可编辑
+         *
          * @param forceCropEdit
          * @return
          */
@@ -220,6 +229,7 @@ public class FunctionConfig implements Cloneable{
 
         /**
          * 是否开启预览功能
+         *
          * @param preview
          * @return
          */
@@ -227,8 +237,10 @@ public class FunctionConfig implements Cloneable{
             this.preview = preview;
             return this;
         }
+
         /**
          * 是否开启预览删除功能
+         *
          * @param preview_delete
          * @return
          */
@@ -236,6 +248,29 @@ public class FunctionConfig implements Cloneable{
             this.preview_delete = preview_delete;
             return this;
         }
+
+        /**
+         * 是否开启压缩功能
+         *
+         * @param compress
+         * @return
+         */
+        public Builder setEnableCompress(boolean compress) {
+            this.compress = compress;
+            return this;
+        }
+
+        /**
+         * 开启压缩功能后压缩图片的大小
+         *
+         * @param compressSize k为单位
+         * @return
+         */
+        public Builder setCompressSize(int compressSize) {
+            this.compressSize = compressSize;
+            return this;
+        }
+
 
         public FunctionConfig build() {
             return new FunctionConfig(this);
@@ -302,12 +337,20 @@ public class FunctionConfig implements Cloneable{
         return filterList;
     }
 
-    public boolean isEnablePreview(){
+    public boolean isEnablePreview() {
         return preview;
     }
 
-    public boolean isEnablePreviewDelte(){
+    public boolean isEnablePreviewDelte() {
         return preview_delete;
+    }
+
+    public boolean isEnableCompress() {
+        return compress;
+    }
+
+    public int isCompressSize() {
+        return compressSize > 0 ? compressSize : maxSizeCompress;
     }
 
     @Override

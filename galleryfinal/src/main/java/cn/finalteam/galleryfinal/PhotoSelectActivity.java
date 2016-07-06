@@ -45,7 +45,6 @@ import cn.finalteam.galleryfinal.model.PhotoInfo;
 import cn.finalteam.galleryfinal.permission.AfterPermissionGranted;
 import cn.finalteam.galleryfinal.permission.EasyPermissions;
 import cn.finalteam.galleryfinal.utils.PhotoTools;
-import cn.finalteam.galleryfinal.widget.FloatingActionButton;
 import cn.finalteam.toolsfinal.DeviceUtils;
 import cn.finalteam.toolsfinal.StringUtils;
 import cn.finalteam.toolsfinal.io.FilenameUtils;
@@ -55,7 +54,7 @@ import cn.finalteam.toolsfinal.io.FilenameUtils;
  * Author:pengjianbo
  * Date:15/10/10 下午3:54
  */
-public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener{
+public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
     private final int HANLDER_TAKE_PHOTO_EVENT = 1000;
     private final int HANDLER_REFRESH_LIST_EVENT = 1002;
@@ -70,7 +69,7 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
     private TextView mTvChooseCount;
     private TextView mTvSubTitle;
     private LinearLayout mLlTitle;
-//    private FloatingActionButton mFabOk;
+    //    private FloatingActionButton mFabOk;
     private TextView mTvEmptyView;
     private RelativeLayout mTitlebar;
     private TextView mTvTitle;
@@ -102,11 +101,11 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if ( msg.what == HANLDER_TAKE_PHOTO_EVENT ) {
+            if (msg.what == HANLDER_TAKE_PHOTO_EVENT) {
                 PhotoInfo photoInfo = (PhotoInfo) msg.obj;
                 takeRefreshGallery(photoInfo);
                 refreshSelectCount();
-            } else if ( msg.what == HANDLER_REFRESH_LIST_EVENT ){
+            } else if (msg.what == HANDLER_REFRESH_LIST_EVENT) {
                 refreshSelectCount();
                 mPhotoListAdapter.notifyDataSetChanged();
                 mFolderListAdapter.notifyDataSetChanged();
@@ -126,7 +125,7 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if ( GalleryFinal.getFunctionConfig() == null || GalleryFinal.getGalleryTheme() == null) {
+        if (GalleryFinal.getFunctionConfig() == null || GalleryFinal.getGalleryTheme() == null) {
             resultFailureDelayed(getString(R.string.please_reopen_gf), true);
         } else {
             setContentView(R.layout.gf_activity_photo_select);
@@ -234,14 +233,15 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
 
     protected void deleteSelect(int photoId) {
         try {
-            for(Iterator<PhotoInfo> iterator = mSelectPhotoList.iterator();iterator.hasNext();){
+            for (Iterator<PhotoInfo> iterator = mSelectPhotoList.iterator(); iterator.hasNext(); ) {
                 PhotoInfo info = iterator.next();
                 if (info != null && info.getPhotoId() == photoId) {
                     iterator.remove();
                     break;
                 }
             }
-        } catch (Exception e){}
+        } catch (Exception e) {
+        }
 
         refreshAdapter();
     }
@@ -265,6 +265,7 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
     /**
      * 解决在5.0手机上刷新Gallery问题，从startActivityForResult回到Activity把数据添加到集合中然后理解跳转到下一个页面，
      * adapter的getCount与list.size不一致，所以我这里用了延迟刷新数据
+     *
      * @param photoInfo
      */
     private void takeRefreshGallery(PhotoInfo photoInfo) {
@@ -279,14 +280,14 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
         photoInfoList.add(0, photoInfo);
         mAllPhotoFolderList.get(0).setPhotoList(photoInfoList);
 
-        if ( mFolderListAdapter.getSelectFolder() != null ) {
+        if (mFolderListAdapter.getSelectFolder() != null) {
             PhotoFolderInfo photoFolderInfo = mFolderListAdapter.getSelectFolder();
             List<PhotoInfo> list = photoFolderInfo.getPhotoList();
-            if ( list == null ) {
+            if (list == null) {
                 list = new ArrayList<>();
             }
             list.add(0, photoInfo);
-            if ( list.size() == 1 ) {
+            if (list.size() == 1) {
                 photoFolderInfo.setCoverPhoto(photoInfo);
             }
             mFolderListAdapter.getSelectFolder().setPhotoList(list);
@@ -305,7 +306,7 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
                     }
                     list.add(0, photoInfo);
                     folderInfo.setPhotoList(list);
-                    if ( list.size() == 1 ) {
+                    if (list.size() == 1) {
                         folderInfo.setCoverPhoto(photoInfo);
                     }
                 }
@@ -322,11 +323,11 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
         message.obj = photoInfo;
         message.what = HANLDER_TAKE_PHOTO_EVENT;
 
-        if ( !GalleryFinal.getFunctionConfig().isMutiSelect() ) { //单选
+        if (!GalleryFinal.getFunctionConfig().isMutiSelect()) { //单选
             mSelectPhotoList.clear();
             mSelectPhotoList.add(photoInfo);
 
-            if ( GalleryFinal.getFunctionConfig().isEditPhoto() ) {//裁剪
+            if (GalleryFinal.getFunctionConfig().isEditPhoto()) {//裁剪
                 mHasRefreshGallery = true;
                 toPhotoEdit();
             } else {
@@ -354,15 +355,15 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        if ( id == R.id.ll_title || id == R.id.iv_folder_arrow) {
-            if ( mLlFolderPanel.getVisibility() == View.VISIBLE ) {
+        if (id == R.id.ll_title || id == R.id.iv_folder_arrow) {
+            if (mLlFolderPanel.getVisibility() == View.VISIBLE) {
                 mLlFolderPanel.setVisibility(View.GONE);
                 mLlFolderPanel.setAnimation(AnimationUtils.loadAnimation(this, R.anim.gf_flip_horizontal_out));
             } else {
                 mLlFolderPanel.setAnimation(AnimationUtils.loadAnimation(this, R.anim.gf_flip_horizontal_in));
                 mLlFolderPanel.setVisibility(View.VISIBLE);
             }
-        } else if ( id == R.id.iv_take_photo ) {
+        } else if (id == R.id.iv_take_photo) {
             //判断是否达到多选最大数量
             if (GalleryFinal.getFunctionConfig().isMutiSelect() && mSelectPhotoList.size() == GalleryFinal.getFunctionConfig().getMaxSize()) {
                 toast(getString(R.string.select_max_tips));
@@ -375,25 +376,26 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
             }
 
             takePhotoAction();
-        } else if ( id == R.id.iv_back ) {
-            if ( mLlFolderPanel.getVisibility() == View.VISIBLE ) {
+        } else if (id == R.id.iv_back) {
+            if (mLlFolderPanel.getVisibility() == View.VISIBLE) {
                 mLlTitle.performClick();
             } else {
                 finish();
             }
-        } else if ( id == R.id.tv_choose_count ) {
-            if(mSelectPhotoList.size() > 0) {
+        } else if (id == R.id.tv_choose_count) {
+            if (mSelectPhotoList.size() > 0) {
                 if (!GalleryFinal.getFunctionConfig().isEditPhoto()) {
                     resultData(mSelectPhotoList);
                 } else {
                     toPhotoEdit();
                 }
             }
-        } else if ( id == R.id.iv_clear ) {
+        } else if (id == R.id.iv_clear) {
             mSelectPhotoList.clear();
             mPhotoListAdapter.notifyDataSetChanged();
             refreshSelectCount();
-        } else if ( id == R.id.iv_preview ) {
+        } else if (id == R.id.iv_preview) {
+            GalleryFinal.getFunctionConfig().preview_delete = false;
             Intent intent = new Intent(this, PhotoPreviewActivity.class);
             intent.putExtra(PhotoPreviewActivity.PHOTO_LIST, mSelectPhotoList);
             startActivity(intent);
@@ -403,17 +405,18 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         int parentId = parent.getId();
-        if ( parentId == R.id.lv_folder_list ) {
+        if (parentId == R.id.lv_folder_list) {
             folderItemClick(position);
         } else {
             photoItemClick(view, position);
         }
     }
+
     private void folderItemClick(int position) {
         mLlFolderPanel.setVisibility(View.GONE);
         mCurPhotoList.clear();
         PhotoFolderInfo photoFolderInfo = mAllPhotoFolderList.get(position);
-        if ( photoFolderInfo.getPhotoList() != null ) {
+        if (photoFolderInfo.getPhotoList() != null) {
             mCurPhotoList.addAll(photoFolderInfo.getPhotoList());
         }
         mPhotoListAdapter.notifyDataSetChanged();
@@ -464,14 +467,15 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
             }
         } else {
             try {
-                for(Iterator<PhotoInfo> iterator = mSelectPhotoList.iterator();iterator.hasNext();){
+                for (Iterator<PhotoInfo> iterator = mSelectPhotoList.iterator(); iterator.hasNext(); ) {
                     PhotoInfo pi = iterator.next();
                     if (pi != null && TextUtils.equals(pi.getPhotoPath(), info.getPhotoPath())) {
                         iterator.remove();
                         break;
                     }
                 }
-            } catch (Exception e){}
+            } catch (Exception e) {
+            }
             checked = false;
         }
         refreshSelectCount();
@@ -490,13 +494,13 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
 
     public void refreshSelectCount() {
         mTvChooseCount.setText(getString(R.string.selected, mSelectPhotoList.size(), GalleryFinal.getFunctionConfig().getMaxSize()));
-        if ( mSelectPhotoList.size() > 0 && GalleryFinal.getFunctionConfig().isMutiSelect() ) {
+        if (mSelectPhotoList.size() > 0 && GalleryFinal.getFunctionConfig().isMutiSelect()) {
             mIvClear.setVisibility(View.VISIBLE);
         } else {
             mIvClear.setVisibility(View.GONE);
         }
 
-        if(GalleryFinal.getFunctionConfig().isEnablePreview()){
+        if (GalleryFinal.getFunctionConfig().isEnablePreview()) {
             mIvPreView.setVisibility(View.VISIBLE);
         } else {
             mIvPreView.setVisibility(View.GONE);
@@ -543,8 +547,8 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
                 mAllPhotoFolderList.addAll(allFolderList);
 
                 mCurPhotoList.clear();
-                if ( allFolderList.size() > 0 ) {
-                    if ( allFolderList.get(0).getPhotoList() != null ) {
+                if (allFolderList.size() > 0) {
+                    if (allFolderList.get(0).getPhotoList() != null) {
                         mCurPhotoList.addAll(allFolderList.get(0).getPhotoList());
                     }
                 }
@@ -556,8 +560,8 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ( keyCode == KeyEvent.KEYCODE_BACK ) {
-            if ( mLlFolderPanel.getVisibility() == View.VISIBLE ) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (mLlFolderPanel.getVisibility() == View.VISIBLE) {
                 mLlTitle.performClick();
                 return true;
             }
@@ -568,7 +572,7 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
     @Override
     protected void onResume() {
         super.onResume();
-        if ( mHasRefreshGallery) {
+        if (mHasRefreshGallery) {
             mHasRefreshGallery = false;
             requestGalleryPermission();
         }
@@ -577,8 +581,8 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        if ( GalleryFinal.getCoreConfig() != null &&
-                GalleryFinal.getCoreConfig().getImageLoader() != null ) {
+        if (GalleryFinal.getCoreConfig() != null &&
+                GalleryFinal.getCoreConfig().getImageLoader() != null) {
             GalleryFinal.getCoreConfig().getImageLoader().clearMemoryCache();
         }
     }

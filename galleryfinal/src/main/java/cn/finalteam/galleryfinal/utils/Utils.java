@@ -16,12 +16,21 @@
 
 package cn.finalteam.galleryfinal.utils;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Random;
+
+import cn.finalteam.galleryfinal.GalleryFinal;
+import cn.finalteam.galleryfinal.dialog.BufferDialog;
+import cn.finalteam.galleryfinal.model.PhotoInfo;
+import cn.finalteam.toolsfinal.io.FileUtils;
+import cn.finalteam.toolsfinal.io.FilenameUtils;
 
 /**
  * Desction:
@@ -29,6 +38,8 @@ import java.util.Random;
  * Date:15/12/7 下午7:32
  */
 public class Utils {
+
+    private static BufferDialog dialog_loading;
 
     public static String getFileName(String pathandname) {
         int start = pathandname.lastIndexOf("/");
@@ -42,6 +53,7 @@ public class Utils {
 
     /**
      * 保存Bitmap到文件
+     *
      * @param bitmap
      * @param format
      * @param target
@@ -116,11 +128,12 @@ public class Utils {
 
     /**
      * 取某个范围的任意数
+     *
      * @param min
      * @param max
      * @return
      */
-    public static int getRandom(int min, int max){
+    public static int getRandom(int min, int max) {
         Random random = new Random();
         int s = random.nextInt(max) % (max - min + 1) + min;
         return s;
@@ -139,4 +152,59 @@ public class Utils {
         else
             return false;
     }
+
+    public static void showBufferDialog(Activity mActivity) {
+        if (dialog_loading == null) {
+            dialog_loading = new BufferDialog(mActivity);
+        }
+        dialog_loading.setCanceledOnTouchOutside(false);// 设置点击屏幕Dialog不消失
+        if (!dialog_loading.isShowing()) {
+            dialog_loading.show();
+        }
+    }
+
+    public static void closeBufferDialog() {
+        if (dialog_loading != null && dialog_loading.isShowing()) {
+            dialog_loading.dismiss();
+            dialog_loading = null;
+        }
+    }
+
+    public static void compressPhoto(ArrayList<PhotoInfo> mSelectPhotoList) {
+        for (PhotoInfo info : mSelectPhotoList) {
+            compressSetResult(info);
+        }
+    }
+
+    private static void compressSetResult(PhotoInfo info) {
+        try {
+            String ext = FilenameUtils.getExtension(info.getPhotoPath());
+            File toFile;
+            if (GalleryFinal.getFunctionConfig().isCropReplaceSource()) {
+                toFile = new File(info.getPhotoPath());
+            } else {
+                toFile = new File(GalleryFinal.getCoreConfig().getEditPhotoCacheFolder(),
+                        Utils.getFileName(info.getPhotoPath()) + "_compress." + ext);
+            }
+
+            FileUtils.mkdirs(toFile.getParentFile());
+
+            CompressPhoto.compressBitmap(info, toFile);
+
+        } catch (Exception e) {
+            ILogger.e(e);
+        }
+
+
+//        //是否压缩图片
+//        String imageName = photoPath.substring(photoPath.lastIndexOf("/") + 1, photoPath.length());
+//        String outCompressPath = FileUtil.URL_SDCARD_CACHE + "/" + imageName;
+//
+//        boolean compressSuccess = CommonUtils.compressBitmap(photoPath, outCompressPath, info.compressSize, info.targetSize);
+//        if (compressSuccess) {
+//            resultPath.add(outCompressPath);
+//        }
+    }
+
+
 }

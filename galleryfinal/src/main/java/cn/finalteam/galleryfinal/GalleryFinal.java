@@ -401,7 +401,7 @@ public class GalleryFinal {
      * 清楚缓存文件
      */
     public static void cleanCacheFile() {
-        if (mCurrentFunctionConfig != null && mCoreConfig.getEditPhotoCacheFolder() != null) {
+        if ( mCoreConfig.getEditPhotoCacheFolder() != null) {
             //清楚裁剪冗余图片
             new Thread() {
                 @Override

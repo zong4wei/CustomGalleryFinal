@@ -51,7 +51,8 @@ public class EditAvaterAdapter extends BaseAdapter {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(allWith / 4, allWith / 4);
         holder.item_photo_edit_avater_iv.setLayoutParams(params);
 
-        imageLoad.displayImage(mInfos.get(position).getPhotoPath(), holder.item_photo_edit_avater_iv);
+        String img = mInfos.get(position).getPhotoPath();
+        imageLoad.displayImage((img.contains("GalleryFinal") ? "file://" : "") + img, holder.item_photo_edit_avater_iv);
 
         holder.item_photo_edit_avater_iv.setOnClickListener(mOnClickListener);
         holder.item_photo_edit_avater_iv.setTag(R.id.item_photo_edit_avater_iv, position);
